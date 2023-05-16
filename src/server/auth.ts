@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
           await transport.sendMail({
             to: email,
             from: from,
-            subject: "Sign in to Brainwave",
+            subject: "Sign in to Load.ai",
             text: text({ url }),
             html: html({ url }),
           });
@@ -78,7 +78,6 @@ export const authOptions: NextAuthOptions = {
     maxAge: 2 * 24 * 60 * 60, // 2 days
   },
   secret: env.NEXTAUTH_SECRET,
-  pages: {},
   debug: env.NODE_ENV === "development",
 };
 
