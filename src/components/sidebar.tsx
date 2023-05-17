@@ -70,14 +70,17 @@ export function Sidebar({ className }: SidebarProps) {
 
       <div className="menu mt-8">
         {Object.keys(Topics).map((topic) => (
-          <Button
-            key={topic}
-            variant="ghost"
-            className="m-3 w-full text-left"
-            onClick={() => setCurrentTopic(topic as Topics)}
-          >
-            {topic}
-          </Button>
+          <>
+            <Button
+              key={topic}
+              variant="ghost"
+              className="m-3 w-full text-left"
+              onClick={() => setCurrentTopic(topic as Topics)}
+            >
+              {topic}
+            </Button>
+            <Separator />
+          </>
         ))}
         <Dialog open={openModal}>
           <DialogTrigger asChild>

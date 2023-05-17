@@ -16,26 +16,26 @@ export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
         "me text-right": !props.message.isChatbot,
       })}
     >
-      <div className="flex-2">
-        <Avatar className="h-12 w-12 p-4">
-          {!props.message.isChatbot && (
-            <AvatarImage
-              src={session?.user.image as string}
-              alt={session?.user.email as string}
-            />
-          )}
+      {props.message.isChatbot && (
+        <div className="flex-2">
+          <Avatar className="h-24 w-24 p-4">
+            {!props.message.isChatbot && (
+              <AvatarImage
+                src={session?.user.image as string}
+                alt={session?.user.email as string}
+              />
+            )}
+            <AvatarFallback className="border-2 border-primary bg-primary/20 text-xl">
+              🤖
+            </AvatarFallback>
+          </Avatar>
+        </div>
+      )}
 
-          <AvatarFallback className="border-2 border-primary bg-primary/20 text-4xl">
-            {props.message.isChatbot
-              ? "🤖"
-              : session?.user.email?.substring(0, 2)}
-          </AvatarFallback>
-        </Avatar>
-      </div>
       <div className="flex-1 px-2">
         <div
           className={cn(
-            "inline-block rounded-full  p-2 px-6",
+            "inline-block rounded-md  p-2 px-6",
             props.message.isChatbot
               ? "bg-primary text-white"
               : "bg-gray-300 text-gray-700"

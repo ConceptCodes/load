@@ -34,7 +34,22 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session({ session }) {
+    async jwt({ token }) {
+      if (token) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email as string },
+          select: { role: true, id: true },
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+          token.id = dbUser.id;
+        }
+      }
+      return token;
+    },
+    session({ session, token }) {
+      session.user.role = token.role as Role;
+      session.user.id = token.id as string;
       return session;
     },
   },
