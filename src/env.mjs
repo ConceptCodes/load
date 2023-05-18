@@ -23,6 +23,8 @@ export const env = createEnv({
     EMAIL_USER: z.string().min(1).optional(),
     EMAIL_PASSWORD: z.string().min(1).optional(),
     EMAIL_FROM: z.string().min(1).optional(),
+    UPSTASH_REDIS_REST_URL: z.string().url(),
+    UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
   },
 
   /**
@@ -49,5 +51,7 @@ export const env = createEnv({
     EMAIL_USER: process.env.EMAIL_USER,
     EMAIL_PASSWORD: process.env.EMAIL_PASSWORD,
     EMAIL_FROM: process.env.EMAIL_FROM,
+    UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
+    UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
   },
 });

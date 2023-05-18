@@ -1,10 +1,12 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import { ThemeProvider } from "@/components/ui/theme-wrapper";
 import { DM_Sans } from "next/font/google";
 
-import { api } from "@/utils/api";
+import { ThemeProvider } from "@/components/ui/theme-wrapper";
+import { Toaster } from "@/components/ui/toaster";
+
+import { api } from "@/lib/api";
 
 import "@/styles/globals.css";
 
@@ -23,6 +25,7 @@ const MyApp: AppType<{ session: Session | null }> = ({
       <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
         <main className={[...dmSans.className].join(" ")}>
           <Component {...pageProps} />
+          <Toaster />
         </main>
       </ThemeProvider>
     </SessionProvider>

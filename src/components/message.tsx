@@ -11,33 +11,6 @@ interface IMessageProps {
 export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
   const { data: session } = useSession();
   return (
-    // <div
-    //   className={cn("message mb-4 flex", {
-    //     "me text-right": !props.message.isChatbot,
-    //   })}
-    // >
-    //   )}
-    //   <div className="flex-1 px-2">
-    //     <div
-    //       className={cn(
-    //         "inline-block rounded-md  p-2 px-6",
-    //         props.message.isChatbot
-    //           ? "bg-primary text-white"
-    //           : "bg-gray-300 text-gray-700"
-    //       )}
-    //     >
-    //       <span>{props.message.content}</span>
-    //     </div>
-    //     <div className="pl-4">
-    //       <small className="text-gray-500">
-    //         {new Date(props.message.createdAt).toLocaleDateString("en-US", {
-    //           month: "short",
-    //           day: "numeric",
-    //         })}
-    //       </small>
-    //     </div>
-    //   </div>
-    // </div>
     <div
       className={cn(
         "rounded-lg p-3",
@@ -56,8 +29,8 @@ export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
       >
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
           <div className="flex-2">
-            <Avatar className="">
-              <AvatarFallback className="border-2 border-primary bg-primary/20 text-xl">
+            <Avatar className="border-none">
+              <AvatarFallback className="border-2 border-primary bg-primary/20 dark:text-white text-xl">
                 {props.message.isChatbot
                   ? "🧠"
                   : session?.user.email?.substring(0, 1)}

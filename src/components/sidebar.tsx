@@ -1,14 +1,9 @@
-import { useState } from "react";
-
-import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
-import { Input } from "./ui/input";
-import { Loader2Icon, MailIcon, BrainCogIcon } from "lucide-react";
-import { Topics } from "@prisma/client";
-import { ThemeToggle } from "@/components/ui/theme-wrapper";
-
+import { useState, Fragment } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { Topics } from "@prisma/client";
+import { Loader2Icon, MailIcon, BrainCogIcon } from "lucide-react";
 
+import { ThemeToggle } from "@/components/ui/theme-wrapper";
 import {
   Dialog,
   DialogContent,
@@ -18,30 +13,33 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
+import { Input } from "./ui/input";
 
 import useStore from "@/store/useStore";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/useToast";
 
-interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {
-  className?: string;
-}
-
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar() {
   const { data: session } = useSession();
 
   const { setCurrentTopic, currentTopic } = useStore();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
     try {
       setIsLoading(true);
       await signIn("email", { email });
-      setEmailSent(true);
+      toast({
+        title: "Success",
+        description: `We've sent a magic link to ${email}. Check your inbox!`,
+      });
       setIsLoading(false);
     } catch (error) {
       setError("Something went wrong");
@@ -53,18 +51,10 @@ export function Sidebar({ className }: SidebarProps) {
     return obj.replace(/_/g, " ").toLocaleLowerCase();
   };
 
-  const handleSubmit = async () => {
-    try {
-      session?.user ? await signOut() : setOpenModal(true);
-    } catch (error) {
-      setError("Something went wrong");
-    }
-  };
-
   return (
     <div className="flex w-64 flex-shrink-0 flex-col bg-background py-8 pl-6 pr-2">
       <div className="flex h-12 w-full flex-row items-center justify-center">
-        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:text-white dark:bg-slate-900">
+        <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700 dark:bg-slate-900 dark:text-white">
           <BrainCogIcon size={20} />
         </div>
         <div className="ml-2 text-2xl font-bold dark:text-white">Load.ai</div>
@@ -88,9 +78,8 @@ export function Sidebar({ className }: SidebarProps) {
         </div>
         <div className="-mx-2 mt-4 flex h-60 flex-col space-y-1 overflow-y-auto">
           {Object.keys(Topics).map((topic) => (
-            <>
+            <Fragment key={topic}>
               <Button
-                key={topic}
                 variant="ghost"
                 className="flex flex-row items-center rounded-xl p-2 capitalize hover:bg-gray-100 dark:hover:bg-gray-600"
                 onClick={() => setCurrentTopic(topic as Topics)}
@@ -118,15 +107,20 @@ export function Sidebar({ className }: SidebarProps) {
                 <div className="ml-auto flex h-4 w-4 items-center justify-center leading-none text-white"></div>
               </Button>
               <Separator />
-            </>
+            </Fragment>
           ))}
         </div>
         <div className="-mx-2 flex flex-col space-y-1 pt-4">
-          <Dialog open={openModal}>
+          <Dialog
+            open={openModal}
+            onOpenChange={(isOpen) => {
+              setOpenModal(isOpen);
+            }}
+          >
             <DialogTrigger asChild>
               <Button
                 className="m-3 text-xs"
-                onClick={() => void handleSubmit()}
+                onClick={() => setOpenModal(true)}
               >
                 {session?.user ? "Logout" : "Login"}
               </Button>
@@ -147,7 +141,7 @@ export function Sidebar({ className }: SidebarProps) {
                   type="submit"
                   className="w-full"
                   variant="default"
-                  onClick={() => void handleSubmit()}
+                  onClick={() => void signOut()}
                 >
                   Logout
                 </Button>
@@ -164,7 +158,7 @@ export function Sidebar({ className }: SidebarProps) {
                     <Button
                       type="submit"
                       className="w-full"
-                      disabled={isLoading || emailSent || !email || !!error}
+                      disabled={isLoading || !email || !!error}
                       variant="default"
                     >
                       {isLoading ? (

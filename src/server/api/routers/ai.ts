@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { Topics } from "@prisma/client";
-import { callOpenAi } from "@/utils";
+import { callOpenAi } from "@/lib";
 
 export const aiRouter = createTRPCRouter({
   getChatLog: protectedProcedure

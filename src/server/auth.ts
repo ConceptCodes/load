@@ -93,9 +93,6 @@ export const authOptions: NextAuthOptions = {
     maxAge: 2 * 24 * 60 * 60, // 2 days
   },
   secret: env.NEXTAUTH_SECRET,
-  pages: {
-    verifyRequest: "/",
-  },
   debug: env.NODE_ENV === "development",
 };
 
