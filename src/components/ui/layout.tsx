@@ -1,14 +1,9 @@
-import React, { useEffect } from "react";
-import { useSession } from "next-auth/react";
+import React, { useCallback } from "react";
 
 import Meta from "./meta";
 import FullScreenConfetti from "./confetti";
-import { UserNav } from "../UserNav";
-
-import { api } from "@/lib/api";
 
 import useStore from "@/store/useStore";
-import { Paragraph } from "./typography";
 
 interface ILayoutProps {
   children: React.ReactNode;
@@ -20,9 +15,8 @@ interface ILayoutProps {
 
 const Layout = ({ children, meta }: ILayoutProps) => {
   const { showConfetti, setShowConfetti } = useStore();
-  const { data: session } = useSession();
 
-  useEffect(() => {
+  useCallback(() => {
     if (showConfetti) {
       setTimeout(() => {
         setShowConfetti(false);

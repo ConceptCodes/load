@@ -1,10 +1,18 @@
 import { type AppType } from "next/app";
 import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import { ThemeProvider } from "@/components/ui/theme-wrapper";
+import { DM_Sans } from "next/font/google";
 
 import { api } from "@/utils/api";
 
 import "@/styles/globals.css";
+
+const dmSans = DM_Sans({
+  weight: ["400", "500", "700"],
+  style: ["normal"],
+  subsets: ["latin"],
+});
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
@@ -12,7 +20,11 @@ const MyApp: AppType<{ session: Session | null }> = ({
 }) => {
   return (
     <SessionProvider session={session}>
-      <Component {...pageProps} />
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+        <main className={[...dmSans.className].join(" ")}>
+          <Component {...pageProps} />
+        </main>
+      </ThemeProvider>
     </SessionProvider>
   );
 };
