@@ -8,46 +8,69 @@
  */
 export function html(params: { url: string }) {
   const { url } = params;
-  const brandColor = "#346df1";
-  const color = {
-    background: "#f9f9f9",
-    text: "#444",
-    mainBackground: "#fff",
-    buttonBackground: brandColor,
-    buttonBorder: brandColor,
-    buttonText: "#fff",
-  };
+  return `<!DOCTYPE html>
+<html>
+<head>
+    <title>Login to Load.ai</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
 
-  return `
-  <body style="background: ${color.background};">
-  <table width="100%" border="0" cellspacing="20" cellpadding="0"
-    style="background: ${color.mainBackground}; max-width: 600px; margin: auto; border-radius: 10px;">
-    <tr>
-      <td align="center"
-        style="padding: 10px 0px; font-size: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-        Sign in to <strong>Load.ai</strong>
-      </td>
-    </tr>
-    <tr>
-      <td align="center" style="padding: 20px 0;">
-        <table border="0" cellspacing="0" cellpadding="0">
-          <tr>
-            <td align="center" style="border-radius: 5px;" bgcolor="${color.buttonBackground}"><a href="${url}"
-                target="_blank"
-                style="font-size: 18px; font-family: Helvetica, Arial, sans-serif; color: ${color.buttonText}; text-decoration: none; border-radius: 5px; padding: 10px 20px; border: 1px solid ${color.buttonBorder}; display: inline-block; font-weight: bold;">Sign
-                in</a></td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-    <tr>
-      <td align="center"
-        style="padding: 0px 0px 10px 0px; font-size: 16px; line-height: 22px; font-family: Helvetica, Arial, sans-serif; color: ${color.text};">
-        If you did not request this email you can safely ignore it.
-      </td>
-    </tr>
-  </table>
-</body>`;
+        .container {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background-color: #F8F8F8;
+        }
+
+        .main-content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .magic-link {
+            padding: 15px 25px;
+            background-color: black;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 25px;
+            display: inline-block;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #F8F8F8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://load.conceptcodes.dev/logo.svg" alt="Logo" width="100">
+        </div>
+
+        <div class="main-content">
+            <h2>Welcome Back!</h2>
+            <p>We're glad to see you again. Just click the button below to log in. No password, no fuss!</p>
+            <a href="${url}" class="magic-link">Log in with Magic Link</a>
+            <p>This link will expire in 24 hours for security reasons.</p>
+        </div>
+
+        <div class="footer">
+            <p>© ${new Date().getFullYear()} Load.ai. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+`;
 }
 
 /** Email Text body (fallback for email clients that don't render HTML, e.g. feature phones) */

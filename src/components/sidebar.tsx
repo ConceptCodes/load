@@ -62,7 +62,7 @@ export function Sidebar() {
       <div className="mt-4 flex w-full flex-col items-center rounded-lg border border-gray-200 bg-slate-100 px-4 py-6 dark:border-none dark:bg-slate-900">
         <Avatar className="h-32 w-32 p-4">
           <AvatarFallback className="border-2 border-primary bg-primary/20 text-4xl">
-            🧠
+            📚
           </AvatarFallback>
         </Avatar>
         <div className="mt-2 text-sm font-semibold dark:text-white">
@@ -76,7 +76,7 @@ export function Sidebar() {
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold dark:text-white">Courses</span>
         </div>
-        <div className="-mx-2 mt-4 flex h-60 flex-col space-y-1 overflow-y-auto">
+        <div className="-mx-2 mt-4 flex h-72 flex-col space-y-1 overflow-y-auto">
           {Object.keys(Topics).map((topic) => (
             <Fragment key={topic}>
               <Button
