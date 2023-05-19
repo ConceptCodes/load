@@ -1,4 +1,4 @@
-import { Message } from "@prisma/client";
+import { type Message } from "@prisma/client";
 import type { ChatCompletionRequestMessageRoleEnum } from "openai";
 import { Configuration, OpenAIApi } from "openai";
 import { env } from "@/env.mjs";
@@ -53,7 +53,6 @@ export async function callOpenAi(
     data = data.replace(/\\t/g, "\t");
 
     console.log("Response from OpenAI: \n\n", data);
-
     return data;
   } catch (error) {
     console.error(error);

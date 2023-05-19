@@ -1,9 +1,9 @@
-import { useState, Fragment } from "react";
+import { useState, Fragment, useCallback } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Topics } from "@prisma/client";
 import { Loader2Icon, MailIcon, BrainCogIcon } from "lucide-react";
 
-import { ThemeToggle } from "@/components/ui/theme-wrapper";
+import { ThemeToggle } from "./ui/theme-wrapper";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
+} from "./ui/dialog";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
@@ -32,19 +32,23 @@ export function Sidebar() {
   const [openModal, setOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = async () => {
-    try {
-      setIsLoading(true);
-      await signIn("email", { email });
-      toast({
-        title: "Success",
-        description: `We've sent a magic link to ${email}. Check your inbox!`,
+  const handleLogin = () => {
+    setIsLoading(true);
+    signIn("email", { email, redirect: false })
+      .then(() => {
+        toast({
+          title: "Success",
+          description: `We've sent a magic link to ${email}. Check your inbox!`,
+        });
+        setEmail("");
+      })
+      .catch((error) => {
+        toast({
+          title: "Error",
+          description: error as string,
+        });
       });
-      setIsLoading(false);
-    } catch (error) {
-      setError("Something went wrong");
-      setIsLoading(false);
-    }
+    setIsLoading(false);
   };
 
   const cleanEnumValue = (obj: string) => {
@@ -76,12 +80,12 @@ export function Sidebar() {
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold dark:text-white">Courses</span>
         </div>
-        <div className="-mx-2 mt-4 flex h-72 flex-col space-y-1 overflow-y-auto">
+        <div className="-mx-2 mt-4 flex h-72 flex-col items-start space-y-1 overflow-y-auto">
           {Object.keys(Topics).map((topic) => (
             <Fragment key={topic}>
               <Button
                 variant="ghost"
-                className="flex flex-row items-center rounded-xl p-2 capitalize hover:bg-gray-100 dark:hover:bg-gray-600"
+                className="flex w-full flex-row items-center justify-start rounded-xl p-2 capitalize hover:text-primary dark:hover:text-white"
                 onClick={() => setCurrentTopic(topic as Topics)}
               >
                 <div
@@ -104,7 +108,6 @@ export function Sidebar() {
                 >
                   {cleanEnumValue(topic)}
                 </div>
-                <div className="ml-auto flex h-4 w-4 items-center justify-center leading-none text-white"></div>
               </Button>
               <Separator />
             </Fragment>

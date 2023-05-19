@@ -35,7 +35,7 @@ declare module "next-auth" {
 export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token }) {
-      if (token) {
+      if (token && !token.role) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email as string },
           select: { role: true, id: true },
@@ -63,7 +63,7 @@ export const authOptions: NextAuthOptions = {
           user: env.EMAIL_USER,
           pass: env.EMAIL_PASSWORD,
         },
-        secure: false,
+        secure: env.NODE_ENV === "production" ? true : false,
       },
       from: env.EMAIL_FROM,
       async sendVerificationRequest({

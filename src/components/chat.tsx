@@ -56,8 +56,8 @@ const Chat = () => {
     <div className="flex h-full flex-auto flex-col p-6">
       <div className="flex h-full flex-auto flex-shrink-0 flex-col rounded-2xl bg-gray-100 p-4 dark:bg-slate-900">
         <div className="mb-4 flex h-full flex-col overflow-x-auto">
-          <div className="flex h-full flex-col">
-            <div className="grid grid-cols-12 gap-y-2 relative">
+          <div className="flex h-full flex-col overflow-y-auto">
+            <div className="relative grid grid-cols-12 gap-y-2">
               {data?.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
@@ -68,7 +68,7 @@ const Chat = () => {
           {!session?.user ? (
             isLoading ? (
               <div className="flex items-center dark:text-slate-500">
-                <LockIcon className="h-5 w-5 mr-4" /> Please login to chat
+                <LockIcon className="mr-4 h-5 w-5" /> Please login to chat
               </div>
             ) : (
               <div className="flex items-center dark:text-slate-500">
@@ -80,15 +80,16 @@ const Chat = () => {
             )
           ) : null}
           {isError && <div className="text-red-600">Error</div>}
-          {addMessage.isLoading && (
+          {addMessage.isLoading && !isError ? (
             <div className="flex items-center dark:text-slate-500">
-              Ai is Thinking{" "}
+              {currentTopic} GPT is Thinking{" "}
               <span>
                 <Loader2 className="ml-3 h-5 w-5 animate-spin" />
               </span>
             </div>
-          )}
-          {addMessage.isError && <div className="text-red-500">{error}</div>}
+          ) : addMessage.isError ? (
+            <div className="text-red-500">{error}</div>
+          ) : null}
         </div>
         <div className="flex h-16 w-full flex-row items-center rounded-xl bg-white p-4 dark:bg-slate-800">
           <div className="ml-4 flex-grow">

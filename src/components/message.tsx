@@ -1,7 +1,11 @@
 import type { FC } from "react";
 import type { Message } from "@prisma/client";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { useSession } from "next-auth/react";
+import ReactMarkdown from "react-markdown";
+import gfm from "remark-gfm";
+import { format, isToday } from "date-fns";
+
+import { Avatar, AvatarFallback } from "./ui/avatar";
+
 import { cn } from "@/lib/utils";
 
 interface IMessageProps {
@@ -9,7 +13,6 @@ interface IMessageProps {
 }
 
 export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
-  const { data: session } = useSession();
   return (
     <div
       className={cn(
@@ -27,13 +30,11 @@ export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
             : "flex-row-reverse justify-start"
         )}
       >
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full">
+        <div className="flex h-10 w-10 flex-shrink-0 rounded-full">
           <div className="flex-2">
             <Avatar className="border-none">
-              <AvatarFallback className="border-2 border-primary bg-primary/20 dark:text-white text-xl">
-                {props.message.isChatbot
-                  ? "🧠"
-                  : session?.user.email?.substring(0, 1)}
+              <AvatarFallback className="border-2 border-primary bg-primary/20 text-xl dark:text-white">
+                {props.message.isChatbot ? "🤖" : "👨🏾‍💻"}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -44,7 +45,21 @@ export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
             props.message.isChatbot ? "bg-slate-700 text-white" : "bg-white"
           )}
         >
-          <div>{props.message.content}</div>
+          <ReactMarkdown remarkPlugins={[gfm]}>
+            {props.message.content}
+          </ReactMarkdown>
+          <span
+            className={cn(
+              "-translate-y-12 text-xs",
+              props.message.isChatbot
+                ? "translate-x-1/2 text-gray-300"
+                : "-translate-x-1/2 text-gray-600"
+            )}
+          >
+            {isToday(props.message.createdAt)
+              ? format(props.message.createdAt, "h:mm a")
+              : format(props.message.createdAt, "MMM d, h:mm a")}
+          </span>
         </div>
       </div>
     </div>
