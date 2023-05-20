@@ -28,6 +28,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-  ],
+, "langchain/ingest.ts"  ],
   "exclude": ["node_modules"]
 }

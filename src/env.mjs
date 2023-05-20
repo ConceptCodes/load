@@ -17,14 +17,17 @@ export const env = createEnv({
       (str) => process.env.VERCEL_URL ?? str,
       process.env.VERCEL ? z.string().min(1) : z.string().url()
     ),
-    OPEN_API_KEY: z.string().min(1).optional(),
+    OPENAI_API_KEY: z.string().min(1).optional(),
     EMAIL_HOST: z.string().min(1).optional(),
     EMAIL_PORT: z.string().min(1).optional(),
     EMAIL_USER: z.string().min(1).optional(),
     EMAIL_PASSWORD: z.string().min(1).optional(),
     EMAIL_FROM: z.string().min(1).optional(),
-    UPSTASH_REDIS_REST_URL: z.string().url(),
+    UPSTASH_REDIS_REST_URL: z.string(),
     UPSTASH_REDIS_REST_TOKEN: z.string().min(1),
+    PINECONE_INDEX: z.string().min(1),
+    PINECONE_API_KEY: z.string().min(1),
+    PINECONE_ENVIRONMENT: z.string().min(1),
   },
 
   /**
@@ -45,7 +48,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    OPEN_API_KEY: process.env.OPEN_API_KEY,
+    OPENAI_API_KEY: process.env.OPEN_API_KEY,
     EMAIL_HOST: process.env.EMAIL_HOST,
     EMAIL_PORT: process.env.EMAIL_PORT,
     EMAIL_USER: process.env.EMAIL_USER,
@@ -53,5 +56,8 @@ export const env = createEnv({
     EMAIL_FROM: process.env.EMAIL_FROM,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,
     UPSTASH_REDIS_REST_TOKEN: process.env.UPSTASH_REDIS_REST_TOKEN,
+    PINECONE_INDEX: process.env.PINECONE_INDEX,
+    PINECONE_API_KEY: process.env.PINECONE_API_KEY,
+    PINECONE_ENVIRONMENT: process.env.PINECONE_ENVIRONMENT,
   },
 });

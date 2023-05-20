@@ -1,16 +1,26 @@
-import { type Message } from "@prisma/client";
-import type { ChatCompletionRequestMessageRoleEnum } from "openai";
-import { Configuration, OpenAIApi } from "openai";
+import type { Message, Topics } from "@prisma/client";
+
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import { HumanChatMessage, SystemChatMessage } from "langchain/schema";
+
 import { env } from "@/env.mjs";
 
-const configuration = new Configuration({
-  apiKey: env.OPEN_API_KEY,
-});
 
-const client = new OpenAIApi(configuration);
+const chat = new ChatOpenAI({ temperature: 0.8 });
+
+export const client = new PineconeClient();
+
+(async function initPinecone() {
+  await client.init({
+    apiKey: env.PINECONE_API_KEY,
+    environment: env.PINECONE_ENVIRONMENT,
+  });
+})().catch(console.error);
+export const pineconeIndex = client.Index(env.PINECONE_INDEX);
 
 export async function callOpenAi(
   prompt: string,
+  topic: Topics,
   chatLog: Message[] | null
 ): Promise<string> {
   try {
@@ -26,34 +36,21 @@ export async function callOpenAi(
       chatLog = [];
     }
     const log = chatLog.map((example) => {
-      return {
-        content: example.content,
-        role: example.isChatbot ? "system" : "user",
-      } as {
-        content: string;
-        role: ChatCompletionRequestMessageRoleEnum;
-      };
+      return example.isChatbot
+        ? new SystemChatMessage(example.content)
+        : new HumanChatMessage(example.content);
     });
-    const response = await client.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [
-        ...(log.length > 0 ? log : []),
-        {
-          content: prompt,
-          role: "user",
-        },
-      ],
-    });
-    let data = response.data.choices[0]?.message?.content as string;
+    const responseB = await chat.call([
+      new SystemChatMessage(
+        `The following is a friendly conversation between a student and Their ${topic} TA. The TA is talkative and provides lots of specific details from its context. If the TA does not know the answer to a question, it truthfully says it does not know.`
+      ),
+      ...log,
+      new HumanChatMessage(prompt),
+    ]);
     const end = performance.now();
     const time = Math.round((end - start) / 1000);
     console.log(`AI took ${time}s to respond.`);
-
-    data = data.replace(/\\n/g, "\n");
-    data = data.replace(/\\t/g, "\t");
-
-    console.log("Response from OpenAI: \n\n", data);
-    return data;
+    return responseB.text;
   } catch (error) {
     console.error(error);
     return "Sorry, I'm having trouble understanding you right now.";
