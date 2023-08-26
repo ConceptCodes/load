@@ -22,7 +22,7 @@ const Chat = () => {
       topic: currentTopic,
     },
     {
-      enabled: !!currentTopic && !!session?.user,
+      enabled: !!currentTopic && !!session?.user.email,
     }
   );
 
@@ -103,26 +103,29 @@ const Chat = () => {
                 value={message}
                 placeholder="Type a message..."
               />
-              <button className="absolute right-0 top-0 flex h-full w-12 items-center justify-center text-gray-400 hover:text-gray-600">
+              <Button
+                variant="link"
+                className="absolute right-0 top-0 flex h-full w-12 items-center justify-center text-gray-400"
+              >
                 <SmileIcon />
-              </button>
+              </Button>
             </div>
           </div>
           <div className="ml-4">
             <Button
               variant="default"
-              disabled={!session?.user}
+              // disabled={!session?.user}
               onClick={() => void handleSendMessage()}
             >
               {session?.user ? (
                 <SendIcon
                   size={16}
-                  className="mr-3 text-white dark:text-black"
+                  className="mr-3 text-white"
                 />
               ) : (
                 <LockIcon
                   size={16}
-                  className="mr-3 text-white dark:text-black"
+                  className="mr-3 text-white"
                 />
               )}
               Send

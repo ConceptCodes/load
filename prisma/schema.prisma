@@ -1,23 +1,10 @@
-
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["jsonProtocol"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum Topics {
-  CALCULUS
-  PHYSICS
-  CHEMISTRY
-  BIOLOGY
-  COMPUTER_SCIENCE
-  ECONOMICS
-  PSYCHOLOGY
-  SOCIOLOGY
 }
 
 model Account {
@@ -51,17 +38,27 @@ enum Role {
   ADMIN
 }
 
+model Documents {
+  id      String  @id @default(cuid())
+  userId  String
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  s3Url   String?
+  topicId String
+  topic   Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String      @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?     @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  role          Role      @default(USER)
+  role          Role        @default(USER)
   Message       Message[]
   Chat          Chat[]
+  Documents     Documents[]
 }
 
 model VerificationToken {
@@ -84,14 +81,25 @@ model Message {
   isChatbot Boolean  @default(false)
 }
 
+model Topic {
+  id          String      @id @default(cuid())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  name        String
+  chatId      String?
+  userId      String
+  documents   Documents[]
+  description String
+}
+
 model Chat {
   id        String    @id @default(cuid())
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-  topic     Topics    @default(CALCULUS)
+  topicId   String    @unique
   messages  Message[]
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
 
-  @@unique([userId, topic])
+  @@unique([userId, topicId])
 }

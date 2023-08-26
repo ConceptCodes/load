@@ -1,19 +1,22 @@
 import { create, type StateCreator } from "zustand";
 import { mountStoreDevtool } from "simple-zustand-devtools";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { Topics } from "@prisma/client";
 
 interface State {
-  currentTopic: Topics;
-  setCurrentTopic: (topic: Topics | null) => void;
+  currentTopic: string | null;
+  topics: string[];
+  setCurrentTopic: (topic: string | null) => void;
+  setTopics: (topics: string[]) => void;
   showConfetti: boolean | null;
   setShowConfetti: (showConfetti: boolean | null) => void;
 }
 
 const store: StateCreator<State> = persist(
   (set) => ({
-    currentTopic: Topics.CALCULUS,
-    setCurrentTopic: (topic) => set({ currentTopic: topic as Topics }),
+    currentTopic: "",
+    topics: [],
+    setCurrentTopic: (topic) => set({ currentTopic: topic as string  }),
+    setTopics: (topics) => set({ topics }),
     showConfetti: false,
     setShowConfetti: (showConfetti) => set({ showConfetti }),
   }),

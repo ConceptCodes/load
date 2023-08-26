@@ -3,6 +3,8 @@ import type { Message } from "@prisma/client";
 import ReactMarkdown from "react-markdown";
 import gfm from "remark-gfm";
 import { format, isToday } from "date-fns";
+import remarkMath from "remark-math";
+import rehypePrismPlus from "rehype-prism-plus";
 
 import { Avatar, AvatarFallback } from "./ui/avatar";
 
@@ -45,7 +47,12 @@ export const ChatMessage: FC<IMessageProps> = (props: IMessageProps) => {
             props.message.isChatbot ? "bg-slate-700 text-white" : "bg-white"
           )}
         >
-          <ReactMarkdown remarkPlugins={[gfm]}>
+          <ReactMarkdown 
+          remarkPlugins={[
+            gfm,
+            [rehypePrismPlus, { ignoreMissing: true }],
+            remarkMath,
+          ]}>
             {props.message.content}
           </ReactMarkdown>
           <span

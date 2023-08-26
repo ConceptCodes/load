@@ -1,6 +1,5 @@
 import { useState, Fragment, useCallback } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Topics } from "@prisma/client";
 import { Loader2Icon, MailIcon, BrainCogIcon } from "lucide-react";
 
 import { ThemeToggle } from "./ui/theme-wrapper";
@@ -20,11 +19,12 @@ import { Input } from "./ui/input";
 import useStore from "@/store/useStore";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
 export function Sidebar() {
   const { data: session } = useSession();
 
-  const { setCurrentTopic, currentTopic } = useStore();
+  const { setCurrentTopic, currentTopic, topics } = useStore();
   const { toast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -32,23 +32,23 @@ export function Sidebar() {
   const [openModal, setOpenModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = () => {
-    setIsLoading(true);
-    signIn("email", { email, redirect: false })
-      .then(() => {
-        toast({
-          title: "Success",
-          description: `We've sent a magic link to ${email}. Check your inbox!`,
-        });
-        setEmail("");
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description: error as string,
-        });
+  const handleLogin = async () => {
+    try {
+      setIsLoading(true);
+      await signIn("email", { email, redirect: false })
+      toast({
+        title: "Success",
+        description: `We've sent a magic link to ${email}. Check your inbox!`,
       });
-    setIsLoading(false);
+      setIsLoading(false);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error as string,
+      });
+    } finally { 
+      setIsLoading(false);
+    }
   };
 
   const cleanEnumValue = (obj: string) => {
@@ -64,11 +64,13 @@ export function Sidebar() {
         <div className="ml-2 text-2xl font-bold dark:text-white">Load.ai</div>
       </div>
       <div className="mt-4 flex w-full flex-col items-center rounded-lg border border-gray-200 bg-slate-100 px-4 py-6 dark:border-none dark:bg-slate-900">
+        <Link href="/profile">
         <Avatar className="h-32 w-32 p-4">
           <AvatarFallback className="border-2 border-primary bg-primary/20 text-4xl">
             📚
           </AvatarFallback>
         </Avatar>
+        </Link>
         <div className="mt-2 text-sm font-semibold dark:text-white">
           {session?.user?.email ? session?.user?.email : ""}
         </div>
@@ -80,20 +82,20 @@ export function Sidebar() {
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold dark:text-white">Courses</span>
         </div>
-        <div className="-mx-2 mt-4 flex h-72 flex-col items-start space-y-1 overflow-y-auto">
-          {Object.keys(Topics).map((topic) => (
+        <div className="-mx-2 mt-4 max-h-200 flex flex-col items-start space-y-1 overflow-y-scroll ">
+          {topics.map((topic) => (
             <Fragment key={topic}>
               <Button
-                variant="ghost"
+                variant="link"
                 className="flex w-full flex-row items-center justify-start rounded-xl p-2 capitalize hover:text-primary dark:hover:text-white"
-                onClick={() => setCurrentTopic(topic as Topics)}
+                onClick={() => setCurrentTopic(topic)}
               >
                 <div
                   className={cn(
                     "flex h-8 w-8 items-center justify-center rounded-full",
                     currentTopic === topic
                       ? "bg-primary text-white dark:bg-white dark:text-black"
-                      : "bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-500"
+                      : "bg-gray-100 text-gray-500 dark:text-gray-500"
                   )}
                 >
                   {topic[0]}
@@ -113,16 +115,14 @@ export function Sidebar() {
             </Fragment>
           ))}
         </div>
-        <div className="-mx-2 flex flex-col space-y-1 pt-4">
           <Dialog
             open={openModal}
             onOpenChange={(isOpen) => {
               setOpenModal(isOpen);
             }}
           >
-            <DialogTrigger asChild>
+            <DialogTrigger asChild className="m-3 text-xs sticky bottom-0">
               <Button
-                className="m-3 text-xs"
                 onClick={() => setOpenModal(true)}
               >
                 {session?.user ? "Logout" : "Login"}
@@ -176,7 +176,6 @@ export function Sidebar() {
               )}
             </DialogContent>
           </Dialog>
-        </div>
       </div>
     </div>
   );

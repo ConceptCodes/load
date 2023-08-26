@@ -21,5 +21,8 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    esmExternals: false, // THIS IS THE FLAG THAT MATTERS
+  },
 };
 export default config;
