@@ -7,11 +7,10 @@ import {
 import EmailProvider from "next-auth/providers/email";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import type { Role } from "@prisma/client";
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 import { env } from "@/env.mjs";
 import { prisma } from "@/server/db";
-import { html, text } from "@/lib/mailer";
 import { MagicLinkEmail } from "@/emails/magic-link";
 
 /**
@@ -44,17 +43,14 @@ export const authOptions: NextAuthOptions = {
   providers: [
     EmailProvider({
       from: env.EMAIL_FROM,
-      async sendVerificationRequest({
-        identifier: email,
-        url,
-      }) {
+      async sendVerificationRequest({ identifier: email, url }) {
         try {
-        const resend = new Resend(env.RESEND_API_KEY);
-          resend.emails.send({
+          const resend = new Resend(env.RESEND_API_KEY);
+          await resend.emails.send({
             from: env.EMAIL_FROM,
             to: email,
             subject: "Sign in to your account",
-            react: MagicLinkEmail({ url })
+            react: MagicLinkEmail({ url }),
           });
         } catch (error) {
           console.error("SEND_VERIFICATION_EMAIL_ERROR", error);
