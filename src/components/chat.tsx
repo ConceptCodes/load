@@ -19,7 +19,7 @@ const Chat = () => {
 
   const { data, isError, isLoading, refetch } = api.ai.getChatLog.useQuery(
     {
-      topic: currentTopic,
+      topic: currentTopic || "",
     },
     {
       enabled: !!currentTopic && !!session?.user.email,
@@ -40,7 +40,7 @@ const Chat = () => {
       setError("");
       if (!message) return;
       if (!session?.user) return;
-      await addMessage.mutateAsync({ topic: currentTopic, message });
+      await addMessage.mutateAsync({ topic: currentTopic || "", message });
       setMessage("");
     } catch (error) {
       console.log(error);
@@ -118,15 +118,9 @@ const Chat = () => {
               onClick={() => void handleSendMessage()}
             >
               {session?.user ? (
-                <SendIcon
-                  size={16}
-                  className="mr-3 text-white"
-                />
+                <SendIcon size={16} className="mr-3 text-white" />
               ) : (
-                <LockIcon
-                  size={16}
-                  className="mr-3 text-white"
-                />
+                <LockIcon size={16} className="mr-3 text-white" />
               )}
               Send
             </Button>

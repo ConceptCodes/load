@@ -11,7 +11,8 @@ export const userRouter = createTRPCRouter({
         fileIds: z.array(
           z.object({
             id: z.string().cuid(),
-          })),
+          })
+        ),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -24,10 +25,8 @@ export const userRouter = createTRPCRouter({
             createMany: {
               data: input.fileIds.map((fileId) => ({
                 fileId: fileId.id,
-              })),
-              connect: {
                 userId: ctx.session.user.id,
-              },
+              })),
             },
           },
         },

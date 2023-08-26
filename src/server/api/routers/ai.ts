@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import { callOpenAi } from "@/lib";
 
 export const aiRouter = createTRPCRouter({
   getChatLog: protectedProcedure
@@ -14,7 +13,7 @@ export const aiRouter = createTRPCRouter({
       const messages = await ctx.prisma.chat
         .findFirst({
           where: {
-            topic: input.topic,
+            topicId: input.topic,
             userId: ctx.session.user.id,
           },
         })
@@ -23,7 +22,7 @@ export const aiRouter = createTRPCRouter({
       if (!messages) {
         await ctx.prisma.chat.create({
           data: {
-            topic: input.topic,
+            topicId: input.topic,
             userId: ctx.session.user.id,
           },
         });
@@ -44,15 +43,15 @@ export const aiRouter = createTRPCRouter({
           .findFirst({
             take: 10,
             where: {
-              topic: input.topic,
+              topicId: input.topic,
               userId: ctx.session.user.id,
             },
           })
           .messages(),
         ctx.prisma.chat.update({
           where: {
-            userId_topic: {
-              topic: input.topic,
+            userId_topicId: {
+              topicId: input.topic,
               userId: ctx.session.user.id,
             },
           },
@@ -71,18 +70,18 @@ export const aiRouter = createTRPCRouter({
           },
         }),
       ]);
-      const response = await callOpenAi(input.message, chatlog);
+      // const response = await callOpenAi(input.message, chatlog);
       await ctx.prisma.chat.update({
         where: {
-          userId_topic: {
-            topic: input.topic,
+          userId_topicId: {
+            topicId: input.topic,
             userId: ctx.session.user.id,
           },
         },
         data: {
           messages: {
             create: {
-              content: response,
+              content: "SYSTEM GENERATED RESPONSE",
               userId: ctx.session.user.id,
               isChatbot: true,
             },
