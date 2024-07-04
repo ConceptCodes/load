@@ -1,36 +1,22 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
-  addTopics: protectedProcedure
+  addTopic: publicProcedure
     .input(
       z.object({
         topic: z.string().min(1).max(100),
-        description: z.string().min(10).max(1000),
-        fileIds: z.array(
-          z.object({
-            id: z.string().cuid(),
-          })
-        ),
       })
     )
     .mutation(async ({ input, ctx }) => {
-      const topics = await ctx.prisma.topic.create({
+      await ctx.prisma.topic.create({
         data: {
           name: input.topic,
-          description: input.description,
-          userId: ctx.session.user.id,
-          documents: {
-            createMany: {
-              data: input.fileIds.map((fileId) => ({
-                fileId: fileId.id,
-                userId: ctx.session.user.id,
-              })),
-            },
-          },
         },
       });
-      return topics;
     }),
+  listTopics: publicProcedure.query(async ({ ctx }) => {
+    return await ctx.prisma.topic.findMany();
+  }),
 });

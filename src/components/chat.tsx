@@ -1,11 +1,10 @@
 import React from "react";
 import { useSession } from "next-auth/react";
-import { SendIcon, Loader2, SmileIcon, LockIcon } from "lucide-react";
+import { SendIcon, Loader2, SmileIcon } from "lucide-react";
 
 import { ChatMessage } from "./message";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import Default from "./default";
 
 import { api } from "@/lib/api";
 import useStore from "@/store/useStore";
@@ -17,12 +16,12 @@ const Chat = () => {
 
   const { data: session } = useSession();
 
-  const { data, isError, isLoading, refetch } = api.ai.getChatLog.useQuery(
+  const { data, isError, refetch } = api.ai.getChatLog.useQuery(
     {
       topic: currentTopic || "",
     },
     {
-      enabled: !!currentTopic && !!session?.user.email,
+      enabled: !!currentTopic,
     }
   );
 
@@ -40,7 +39,10 @@ const Chat = () => {
       setError("");
       if (!message) return;
       if (!session?.user) return;
-      await addMessage.mutateAsync({ topic: currentTopic || "", message });
+      await addMessage.mutateAsync({
+        topic: currentTopic || "TOPIC_UKNOWN",
+        message,
+      });
       setMessage("");
     } catch (error) {
       console.log(error);
@@ -65,22 +67,8 @@ const Chat = () => {
           </div>
         </div>
         <div className="flex h-16 w-full flex-row items-center px-4 dark:text-white">
-          {!session?.user ? (
-            isLoading ? (
-              <div className="flex items-center dark:text-slate-500">
-                <LockIcon className="mr-4 h-5 w-5" /> Please login to chat
-              </div>
-            ) : (
-              <div className="flex items-center dark:text-slate-500">
-                Ai is Thinking{" "}
-                <span>
-                  <Loader2 className="ml-3 h-5 w-5 animate-spin" />
-                </span>
-              </div>
-            )
-          ) : null}
           {isError && <div className="text-red-600">Error</div>}
-          {addMessage.isLoading && !isError ? (
+          {addMessage.isPending && !isError ? (
             <div className="flex items-center dark:text-slate-500">
               {currentTopic} GPT is Thinking{" "}
               <span>
@@ -112,16 +100,8 @@ const Chat = () => {
             </div>
           </div>
           <div className="ml-4">
-            <Button
-              variant="default"
-              // disabled={!session?.user}
-              onClick={() => void handleSendMessage()}
-            >
-              {session?.user ? (
-                <SendIcon size={16} className="mr-3 text-white" />
-              ) : (
-                <LockIcon size={16} className="mr-3 text-white" />
-              )}
+            <Button variant="default" onClick={handleSendMessage}>
+              <SendIcon size={16} className="mr-3" />
               Send
             </Button>
           </div>

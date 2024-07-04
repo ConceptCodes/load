@@ -28,6 +28,6 @@
     "**/*.tsx",
     "**/*.cjs",
     "**/*.mjs"
-, "src/lib/ai.ts"  ],
+, "src/lib/ai/index.ts"  ],
   "exclude": ["node_modules"]
 }

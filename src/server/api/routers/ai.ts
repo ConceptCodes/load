@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
 export const aiRouter = createTRPCRouter({
-  getChatLog: protectedProcedure
+  getChatLog: publicProcedure
     .input(
       z.object({
         topic: z.string().min(1).max(100),
@@ -14,7 +14,6 @@ export const aiRouter = createTRPCRouter({
         .findFirst({
           where: {
             topicId: input.topic,
-            userId: ctx.session.user.id,
           },
         })
         .messages();
@@ -23,14 +22,13 @@ export const aiRouter = createTRPCRouter({
         await ctx.prisma.chat.create({
           data: {
             topicId: input.topic,
-            userId: ctx.session.user.id,
           },
         });
         return [];
       }
       return messages;
     }),
-  sendMessage: protectedProcedure
+  sendMessage: publicProcedure
     .input(
       z.object({
         topic: z.string().min(1).max(100),
@@ -44,27 +42,19 @@ export const aiRouter = createTRPCRouter({
             take: 10,
             where: {
               topicId: input.topic,
-              userId: ctx.session.user.id,
             },
           })
           .messages(),
         ctx.prisma.chat.update({
           where: {
-            userId_topicId: {
+            topicId: {
               topicId: input.topic,
-              userId: ctx.session.user.id,
             },
           },
           data: {
             messages: {
               create: {
                 content: input.message,
-                userId: ctx.session.user.id,
-              },
-            },
-            user: {
-              connect: {
-                id: ctx.session.user.id,
               },
             },
           },
@@ -73,22 +63,15 @@ export const aiRouter = createTRPCRouter({
       // const response = await callOpenAi(input.message, chatlog);
       await ctx.prisma.chat.update({
         where: {
-          userId_topicId: {
+          topicId: {
             topicId: input.topic,
-            userId: ctx.session.user.id,
           },
         },
         data: {
           messages: {
             create: {
-              content: "SYSTEM GENERATED RESPONSE",
-              userId: ctx.session.user.id,
+              content: "SYSTEM",
               isChatbot: true,
-            },
-          },
-          user: {
-            connect: {
-              id: ctx.session.user.id,
             },
           },
         },

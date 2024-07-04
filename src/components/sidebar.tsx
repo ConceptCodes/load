@@ -1,5 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Fragment } from "react";
-import { useSession } from "next-auth/react";
 import { BrainCogIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -7,20 +7,21 @@ import { ThemeToggle } from "./ui/theme-wrapper";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
-import LoginModal from "./modals/Login";
 
 import useStore from "@/store/useStore";
 import { cn } from "@/lib/utils";
 import AddTopicModal from "./modals/AddTopic";
+import LanguageModal from "./modals/LanguageModal";
+import { api } from "@/lib/api";
 
 export function Sidebar() {
-  const { data: session } = useSession();
-
-  const { setCurrentTopic, currentTopic, topics } = useStore();
+  const { setCurrentTopic, currentTopic } = useStore();
 
   const cleanEnumValue = (obj: string) => {
     return obj.replace(/_/g, " ").toLocaleLowerCase();
   };
+
+  const { data, isFetched } = api.user.listTopics.useQuery();
 
   return (
     <div className="flex w-64 flex-shrink-0 flex-col bg-background py-8 pl-6 pr-2">
@@ -38,53 +39,55 @@ export function Sidebar() {
             </AvatarFallback>
           </Avatar>
         </Link>
-        <div className="mt-2 text-sm font-semibold dark:text-white">
-          {session?.user?.email ? session?.user?.email : ""}
-        </div>
-        <div className="py-2 text-xs text-gray-500">
-          <ThemeToggle />
-        </div>
+        <div className="mt-2 text-sm font-semibold dark:text-white"></div>
+        <section className="mt-4 flex items-center justify-center space-y-2">
+          <div className="py-2 text-xs text-gray-500">
+            <ThemeToggle />
+          </div>
+          <LanguageModal />
+        </section>
       </div>
       <div className="mt-8 flex flex-col">
         <div className="flex flex-row items-center justify-between text-xs">
           <span className="font-bold dark:text-white">Topics</span>
-          {session?.user && <AddTopicModal />}
+          <AddTopicModal />
         </div>
         <div className="max-h-200 -mx-2 mt-4 flex flex-col items-start space-y-1 overflow-y-scroll ">
-          {topics.map((topic) => (
-            <Fragment key={topic}>
-              <Button
-                variant="link"
-                className="flex w-full flex-row items-center justify-start rounded-xl p-2 capitalize hover:text-primary dark:hover:text-white"
-                onClick={() => setCurrentTopic(topic)}
-              >
-                <div
-                  className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full",
-                    currentTopic === topic
-                      ? "bg-primary text-white dark:bg-white dark:text-black"
-                      : "bg-gray-100 text-gray-500 dark:text-gray-500"
-                  )}
+          {isFetched &&
+            Array.isArray(data) &&
+            data.map((topic) => (
+              <Fragment key={topic.name}>
+                <Button
+                  variant="link"
+                  className="flex w-full flex-row items-center justify-start rounded-xl p-2 capitalize hover:text-primary dark:hover:text-white"
+                  onClick={() => setCurrentTopic(topic.name)}
                 >
-                  {topic[0]}
-                </div>
-                <div
-                  className={cn(
-                    "ml-2 text-sm font-semibold",
-                    currentTopic === topic
-                      ? "text-primary dark:text-white"
-                      : "text-gray-500 dark:text-gray-500"
-                  )}
-                >
-                  {cleanEnumValue(topic)}
-                </div>
-              </Button>
-              <Separator />
-            </Fragment>
-          ))}
+                  <div
+                    className={cn(
+                      "flex h-8 w-8 items-center justify-center rounded-full",
+                      currentTopic === topic.name
+                        ? "bg-primary text-white dark:bg-white dark:text-black"
+                        : "bg-gray-100 text-gray-500 dark:text-gray-500"
+                    )}
+                  >
+                    {topic[0]?.name}
+                  </div>
+                  <div
+                    className={cn(
+                      "ml-2 text-sm font-semibold",
+                      currentTopic === topic.name
+                        ? "text-primary dark:text-white"
+                        : "text-gray-500 dark:text-gray-500"
+                    )}
+                  >
+                    {cleanEnumValue(topic.name)}
+                  </div>
+                </Button>
+                <Separator />
+              </Fragment>
+            ))}
         </div>
       </div>
-      <LoginModal />
     </div>
   );
 }

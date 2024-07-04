@@ -1,32 +1,60 @@
-/** server/uploadthing.ts */
-import { NextApiRequest, NextApiResponse } from "next/types";
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
- 
+import { Role, DocumentType, UploadStatus } from "@prisma/client";
+
+import { getServerAuthSession } from "./auth";
+import { prisma } from "./db";
+import { parseDocument } from "@/lib/ai/vector-store";
+import { uploadDocumentSchema } from "./schemas";
+
+import { UTApi } from "uploadthing/server";
+
 const f = createUploadthing();
- 
-const auth = (req: NextApiRequest, res: NextApiResponse) => ({ id: "fakeId" }); // Fake auth function
- 
-// FileRouter for your app, can contain multiple FileRoutes
+
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique routeSlug
-  imageUploader: f({ image: { maxFileSize: "4MB" } })
-    // Set permissions and file types for this FileRoute
-    .middleware(async (req, res) => {
-      // This code runs on your server before upload
-      const user = await auth(req, res);
- 
-      // If you throw, the user will not be able to upload
-      if (!user) throw new Error("Unauthorized");
- 
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: user.id };
+  documents: f({
+    pdf: {
+      maxFileSize: "32MB",
+    },
+  })
+    .input(uploadDocumentSchema)
+    .middleware(async ({ req, res, input }) => {
+      const session = await getServerAuthSession({ req, res });
+
+      if (!session || session?.user.role != Role.ADMIN)
+        throw new Error("Unauthorized");
+
+      return {
+        topic: input.topic,
+        subtopic: input.subtopic,
+      };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
- 
-      console.log("file url", file.url);
+      const doc = await prisma.document.create({
+        data: {
+          name: file.name,
+          url: file.url,
+          key: file.key,
+          topic: metadata.topic,
+          subtopic: metadata.subtopic,
+          type: DocumentType.PDF,
+          status: UploadStatus.UPLOADED,
+        },
+      });
+
+      await parseDocument({
+        topic: doc.topic,
+        subtopic: doc.subtopic || "",
+        id: doc.id,
+        url: doc.url,
+      });
+
+      return {
+        id: doc.id,
+        name: doc.name,
+        url: doc.url,
+      };
     }),
 } satisfies FileRouter;
- 
+
+export const utapi = new UTApi();
 export type OurFileRouter = typeof ourFileRouter;
